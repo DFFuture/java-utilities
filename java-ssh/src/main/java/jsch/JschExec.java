@@ -8,15 +8,15 @@ import java.io.InputStream;
 public class JschExec {
     public static void main(String[] args) throws JSchException, IOException, InterruptedException {
         JSch client = new JSch();
-        Session session = client.getSession("root","192.168.0.111", 22);
-        session.setPassword("123456");
+        Session session = client.getSession("root","127.0.0.1", 2222);
+        session.setPassword("root");
         session.setConfig("StrictHostKeyChecking", "no");
         session.setConfig("PerferredAuthentications", "publickey,keybord-interactive, password");
         session.connect(3000);
 
         Channel channel = session.openChannel("exec");
         ChannelExec channelExec = (ChannelExec) channel;
-        channelExec.setCommand("hostname");
+        channelExec.setCommand("tail -f install.log");
         channelExec.setErrStream(System.err);
         channelExec.setInputStream(null);
         channelExec.setOutputStream(System.out);
@@ -31,6 +31,7 @@ public class JschExec {
                 int i = in.read(tmp, 0 , 1024);
                 if(i < 0) break;
                 executeResultString.append(new String(tmp, 0, i));
+                System.out.println(executeResultString);
             }
             if(channelExec.isClosed()) {
                 System.out.println("exit code:" + channelExec.getExitStatus());
